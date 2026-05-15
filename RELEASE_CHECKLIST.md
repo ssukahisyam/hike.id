@@ -30,28 +30,39 @@ version: 0.1.0+1
 | Breaking change atau milestone besar | major (`0.x.y` → `1.0.0`) |
 | **Selalu** | build number `+N` |
 
-## 2. Build & Tag
+## 2. Build & Release
+
+**Cara utama (manual dispatch — disarankan):**
+
+1. Buka tab **Actions** di repo GitHub.
+2. Pilih workflow **Release APK** di sidebar kiri.
+3. Klik **Run workflow** (kanan atas).
+4. Isi input:
+   - **version**: nomor versi tanpa prefix `v`, mis. `0.1.0`. Akan otomatis jadi tag `v0.1.0` dan nama Release `Hike.id v0.1.0`.
+   - **release_notes** (opsional): catatan singkat tentang rilis ini. Boleh kosong.
+   - **prerelease**: `true` untuk private testing (default). Set ke `false` hanya kalau benar-benar siap publik.
+5. Klik **Run workflow** hijau.
+6. Tunggu ~10–15 menit. Workflow akan otomatis:
+   - Build universal APK + split-per-ABI APKs.
+   - Buat tag `v<version>` di commit `main` saat ini.
+   - Buat GitHub Release dengan APK ter-attach.
+
+**Cara alternatif (push tag — buat yang prefer git CLI):**
 
 ```bash
-# Pastikan di main yang sudah merged & up-to-date
 git checkout main
 git pull
-
-# Tag dengan format vX.Y.Z (sama persis dengan version_name di pubspec)
 git tag v0.1.0
 git push origin v0.1.0
 ```
 
-GitHub Actions akan otomatis:
-1. Build universal + split-per-ABI APKs.
-2. Upload sebagai artifact.
-3. Create draft GitHub Release (prerelease=true) dengan APK ter-attach.
+Workflow yang sama akan trigger via tag push. Bedanya: tidak ada input `release_notes` & `prerelease` (default `prerelease=true`).
 
 ## 3. Verifikasi Release
 
-- [ ] Run release workflow sukses (Actions tab).
-- [ ] Release page muncul di Releases tab.
-- [ ] Semua APK ter-attach: `*-universal.apk`, `*-arm64-v8a.apk`, `*-armeabi-v7a.apk`, `*-x86_64.apk`.
+- [ ] Run workflow sukses (Actions tab).
+- [ ] Release page muncul di Releases tab dengan tag `v<version>`.
+- [ ] APK ter-attach: `hikeid-<version>-universal.apk`, `*-arm64-v8a.apk`, `*-armeabi-v7a.apk`, `*-x86_64.apk`.
 - [ ] Download `*-universal.apk`, install di minimal 1 device fisik.
 - [ ] App launch tanpa crash.
 - [ ] Onboarding screen muncul (first install) atau home screen (upgrade).
