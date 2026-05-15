@@ -45,9 +45,11 @@ class TripRepository {
   /// Trip yang masih aktif/paused (untuk crash recovery — PRD US-TRK-05).
   Future<Trip?> findActiveOrPaused() async {
     final TripRow? row = await (_db.select(_db.trips)
-          ..where(($TripsTable t) =>
-              t.status.equals(TripStatus.active.name) |
-              t.status.equals(TripStatus.paused.name))
+          ..where(
+            ($TripsTable t) =>
+                t.status.equals(TripStatus.active.name) |
+                t.status.equals(TripStatus.paused.name),
+          )
           ..orderBy(<OrderClauseGenerator<$TripsTable>>[
             ($TripsTable t) => OrderingTerm(expression: t.updatedAt, mode: OrderingMode.desc),
           ])
