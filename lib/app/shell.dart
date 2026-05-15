@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/theme/color_tokens.dart';
+import '../core/widgets/offline_banner.dart';
 import '../l10n/generated/app_localizations.dart';
 import 'router.dart';
 
@@ -35,7 +36,14 @@ class AppShell extends StatelessWidget {
     final int index = _indexFromLocation(location);
 
     return Scaffold(
-      body: child,
+      body: Column(
+        children: <Widget>[
+          // Banner offline global — DESIGN.md §6.7. Auto-watch
+          // isOnlineProvider; tidak muncul saat user online.
+          const OfflineBanner(),
+          Expanded(child: child),
+        ],
+      ),
       bottomNavigationBar: DecoratedBox(
         decoration: BoxDecoration(
           border: Border(top: BorderSide(color: s.borderSubtle)),
