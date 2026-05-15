@@ -67,9 +67,14 @@ MVP ditargetkan **20 minggu** sejak kickoff, dengan public beta **+6 minggu** se
 Snapshot fase saat ini:
 
 - Phase 1 — Project Foundation: **selesai**
-- Phase 2 — Local Data Foundation: **selesai (skema)**
-- Phase 3 — GPS Tracking Core: belum
-- Phase 4–10: belum
+- Phase 2 — Local Data Foundation: **selesai**
+- Phase 3 — GPS Tracking Core: **selesai**
+- Phase 4 — Background Tracking: belum (perlu real device test)
+- Phase 5 — Map & Offline: **selesai (online)**, tile cache offline belum
+- Phase 6 — GPX Import & Export: **selesai**
+- Phase 7 — Checkpoint: **selesai**, photo/voice note belum
+- Phase 8 — Safety / SOS: **selesai**
+- Phase 9–10: belum
 
 ## Lisensi
 

@@ -116,11 +116,15 @@ Mengikuti **Clean Architecture + feature-first** dari PLANNING §6.
 
 Lihat PLANNING_HIKEID.md §7 untuk roadmap fase. Saat ini app berada di:
 
-- ✅ Phase 1 — Project foundation (theme, navigation, locale, CI)
-- ✅ Phase 2 — Local data foundation (Drift tables, domain entities)
-- ⬜ Phase 3 — GPS tracking core
-- ⬜ Phase 4 — Background tracking
-- ⬜ Phase 5 — Map & offline
-- ...
+- Phase 1 — Project foundation (theme, navigation, locale, CI) — **selesai**
+- Phase 2 — Local data foundation (Drift tables, repositories) — **selesai**
+- Phase 3 — GPS tracking core (geolocator, state notifier, auto-save, recovery) — **selesai**
+- Phase 4 — Background tracking & battery modes — belum (perlu real device test)
+- Phase 5 — Map & offline (flutter_map, OSM tiles, polylines) — **selesai (online)**
+- Phase 6 — GPX import & export — **selesai**
+- Phase 7 — Checkpoint & notes — **checkpoint selesai**, photo/voice note belum
+- Phase 8 — Safety / SOS (last-known location, contacts CRUD, share) — **selesai**
+- Phase 9 — Stats lanjut & polish — belum
+- Phase 10 — Release APK distribusi — belum
 
-Screen yang sudah ada masih banyak placeholder — wiring ke service Phase 3+ akan dilakukan secara incremental.
+Yang masih placeholder: profile elevasi grafik, off-route warning, tile cache offline (perlu paket FMTC), background foreground service, photo/voice notes.

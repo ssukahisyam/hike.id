@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/app.dart';
 import 'core/theme/theme_mode_controller.dart';
+import 'features/tracking/application/tracking_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,11 +18,20 @@ Future<void> main() async {
 
   final SharedPreferences prefs = await SharedPreferences.getInstance();
 
+  final ProviderContainer container = ProviderContainer(
+    overrides: <Override>[
+      sharedPreferencesProvider.overrideWithValue(prefs),
+    ],
+  );
+
+  // Crash recovery — PRD US-TRK-05.
+  // Bila ada session active/paused yang belum ditutup, controller akan
+  // resume lifecycle-nya supaya data tidak hilang.
+  await container.read(trackingControllerProvider.notifier).recoverActiveTrip();
+
   runApp(
-    ProviderScope(
-      overrides: <Override>[
-        sharedPreferencesProvider.overrideWithValue(prefs),
-      ],
+    UncontrolledProviderScope(
+      container: container,
       child: const HikeIdApp(),
     ),
   );
