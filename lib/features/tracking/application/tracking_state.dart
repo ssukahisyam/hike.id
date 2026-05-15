@@ -27,6 +27,7 @@ class TrackingSession extends Equatable {
     this.errorMessage,
     this.gpsAccuracy = GpsAccuracyLevel.noSignal,
     this.mode = TrackingMode.balanced,
+    this.offRouteDistanceMeters,
   });
 
   final TrackingPhase phase;
@@ -42,6 +43,10 @@ class TrackingSession extends Equatable {
   final String? errorMessage;
   final GpsAccuracyLevel gpsAccuracy;
   final TrackingMode mode;
+
+  /// Jarak user ke route saat off-route warning dipicu. null = tidak ada
+  /// warning aktif. Lihat PRD §4.9.
+  final double? offRouteDistanceMeters;
 
   bool get isRunning => phase == TrackingPhase.running;
   bool get isPaused => phase == TrackingPhase.paused;
@@ -66,8 +71,10 @@ class TrackingSession extends Equatable {
     String? errorMessage,
     GpsAccuracyLevel? gpsAccuracy,
     TrackingMode? mode,
+    double? offRouteDistanceMeters,
     bool clearError = false,
     bool clearTrip = false,
+    bool clearOffRoute = false,
   }) {
     return TrackingSession(
       phase: phase ?? this.phase,
@@ -83,6 +90,9 @@ class TrackingSession extends Equatable {
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       gpsAccuracy: gpsAccuracy ?? this.gpsAccuracy,
       mode: mode ?? this.mode,
+      offRouteDistanceMeters: clearOffRoute
+          ? null
+          : (offRouteDistanceMeters ?? this.offRouteDistanceMeters),
     );
   }
 
@@ -101,6 +111,7 @@ class TrackingSession extends Equatable {
         errorMessage,
         gpsAccuracy,
         mode,
+        offRouteDistanceMeters,
       ];
 }
 

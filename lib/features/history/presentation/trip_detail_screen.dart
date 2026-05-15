@@ -10,7 +10,9 @@ import '../../../core/theme/color_tokens.dart';
 import '../../../core/theme/spacing.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/utils/distance.dart' as geo;
 import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/elevation_profile_chart.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/stat_block.dart';
@@ -138,6 +140,23 @@ class TripDetailScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
+                    if (data.points.length >= 2) ...<Widget>[
+                      const SizedBox(height: HSpacing.sectionGap),
+                      const SectionHeader(label: 'Profil elevasi'),
+                      const SizedBox(height: HSpacing.s3),
+                      AppCard(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: HSpacing.s3,
+                        ),
+                        child: ElevationProfileChart(
+                          elevations: <double?>[
+                            for (final TrackPoint p in data.points)
+                              if (!p.isPaused) p.elevation,
+                          ],
+                          distancesMeters: _cumulativeDistances(data.points),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: HSpacing.sectionGap),
                     SectionHeader(label: l.tripDetailNotes),
                     const SizedBox(height: HSpacing.s3),
@@ -225,4 +244,24 @@ class _TripDetailData {
   final Trip? trip;
   final List<TrackPoint> points;
   final List<Checkpoint> checkpoints;
+}
+
+List<double> _cumulativeDistances(List<TrackPoint> points) {
+  final List<double> out = <double>[];
+  double total = 0;
+  TrackPoint? prev;
+  for (final TrackPoint p in points) {
+    if (p.isPaused) continue;
+    if (prev != null) {
+      total += geo.Geo.haversineMeters(
+        prev.latitude,
+        prev.longitude,
+        p.latitude,
+        p.longitude,
+      );
+    }
+    out.add(total);
+    prev = p;
+  }
+  return out;
 }

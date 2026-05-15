@@ -123,8 +123,8 @@ Lihat PLANNING_HIKEID.md §7 untuk roadmap fase. Saat ini app berada di:
 - Phase 5 — Map & offline (flutter_map, OSM tiles, polylines) — **selesai (online)**
 - Phase 6 — GPX import & export — **selesai**
 - Phase 7 — Checkpoint & notes — **checkpoint selesai**, photo/voice note belum
-- Phase 8 — Safety / SOS (last-known location, contacts CRUD, share) — **selesai**
-- Phase 9 — Stats lanjut & polish — belum
+- Phase 8 — Safety / SOS (last-known location, contacts CRUD, share, off-route warning) — **selesai**
+- Phase 9 — Stats lanjut (profil elevasi chart, personal best, monthly heatmap) & UI polish — **selesai**
 - Phase 10 — Release APK distribusi — belum
 
-Yang masih placeholder: profile elevasi grafik, off-route warning, tile cache offline (perlu paket FMTC), background foreground service, photo/voice notes.
+Yang masih perlu real device / opsional: tile cache offline (FMTC), background foreground service, photo/voice notes, in-app purchase paywall.

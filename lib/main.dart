@@ -26,8 +26,13 @@ Future<void> main() async {
 
   // Crash recovery — PRD US-TRK-05.
   // Bila ada session active/paused yang belum ditutup, controller akan
-  // resume lifecycle-nya supaya data tidak hilang.
-  await container.read(trackingControllerProvider.notifier).recoverActiveTrip();
+  // resume lifecycle-nya supaya data tidak hilang. Kita guard error supaya
+  // tidak block startup kalau permission lokasi belum diberikan.
+  try {
+    await container.read(trackingControllerProvider.notifier).recoverActiveTrip();
+  } on Object catch (_) {
+    // Best-effort: gagal recover bukan alasan untuk gagal launch app.
+  }
 
   runApp(
     UncontrolledProviderScope(

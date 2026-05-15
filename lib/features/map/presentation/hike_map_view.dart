@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -51,7 +52,6 @@ class HikeMapView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final HSurface s = Theme.of(context).extension<HSurface>()!;
     // Default ke center Indonesia kalau tidak ada koordinat.
     final LatLng center = initialCenter ?? currentPosition ?? const LatLng(-2.0, 117.5);
 
@@ -66,7 +66,7 @@ class HikeMapView extends StatelessWidget {
             maxZoom: 18,
             onLongPress: onLongPress == null
                 ? null
-                : (TapPosition tap, LatLng pos) => onLongPress!(pos),
+                : (TapPosition tap, LatLng pos) => onLongPress!.call(pos),
             interactionOptions: const InteractionOptions(
               flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
             ),
@@ -76,42 +76,36 @@ class HikeMapView extends StatelessWidget {
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               userAgentPackageName: 'id.hike.app',
               maxZoom: 19,
-              tileProvider: NetworkTileProvider(),
-              errorTileCallback: (TileImage tile, Object error, StackTrace? st) {
-                // Tile error ditampilkan placeholder, app tidak crash
-                // (PRD US-MAP-01).
-              },
             ),
             // History tracks
             if (historyTracks.isNotEmpty)
-              PolylineLayer<Object>(
-                polylines: <Polyline<Object>>[
+              PolylineLayer(
+                polylines: <Polyline>[
                   for (final List<LatLng> t in historyTracks)
                     if (t.length >= 2)
-                      Polyline<Object>(
+                      Polyline(
                         points: t,
                         strokeWidth: 4,
                         color: HColors.trackHistory.withOpacity(0.7),
                       ),
                 ],
               ),
-            // Imported GPX route (dashed)
+            // Imported GPX route
             if (importedRoute != null && importedRoute!.length >= 2)
-              PolylineLayer<Object>(
-                polylines: <Polyline<Object>>[
-                  Polyline<Object>(
+              PolylineLayer(
+                polylines: <Polyline>[
+                  Polyline(
                     points: importedRoute!,
                     strokeWidth: 4,
                     color: HColors.trackImported,
-                    pattern: const StrokePattern.dashed(segments: <double>[10, 6]),
                   ),
                 ],
               ),
             // Active recording track
             if (activeTrack.length >= 2)
-              PolylineLayer<Object>(
-                polylines: <Polyline<Object>>[
-                  Polyline<Object>(
+              PolylineLayer(
+                polylines: <Polyline>[
+                  Polyline(
                     points: activeTrack,
                     strokeWidth: 5,
                     color: HColors.trackActive,
@@ -146,43 +140,28 @@ class HikeMapView extends StatelessWidget {
                 ],
               ),
             // Atribusi OSM — wajib visible (DESIGN.md §8.5).
-            RichAttributionWidget(
-              alignment: AttributionAlignment.bottomRight,
-              attributions: <SourceAttribution>[
-                TextSourceAttribution(
-                  '© OpenStreetMap contributors',
-                  onTap: () {},
-                ),
-              ],
-            ),
           ],
         ),
-
-        // Offline banner (DESIGN.md §6.7).
-        // TODO(phase-5+): wire ke connectivity_plus stream.
-        if (false)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              child: Container(
-                margin: const EdgeInsets.all(HSpacing.s3),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: HSpacing.s3,
-                  vertical: HSpacing.s2,
-                ),
-                decoration: BoxDecoration(
-                  color: HColors.volcanic700,
-                  borderRadius: BorderRadius.circular(HRadius.md),
-                ),
-                child: Text(
-                  'Mode Offline',
-                  style: HTypography.labelMd.copyWith(color: s.actionPrimaryFg),
-                ),
-              ),
+        // Atribusi sebagai Positioned widget — portable across flutter_map versions.
+        Positioned(
+          right: 8,
+          bottom: 4,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: HColors.mist0.withOpacity(0.85),
+              borderRadius: BorderRadius.circular(HRadius.sm),
+            ),
+            child: Text(
+              '© OpenStreetMap',
+              style: HTypography.bodySm.copyWith(color: HColors.mist700),
             ),
           ),
+        ),
+
+        // Offline banner (DESIGN.md §6.7) — placeholder. Belum di-wire ke
+        // connectivity_plus stream; akan ditambahkan saat tile-cache fitur
+        // online (post-MVP).
       ],
     );
   }

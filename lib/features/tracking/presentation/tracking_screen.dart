@@ -20,8 +20,6 @@ import '../../checkpoint/presentation/add_checkpoint_sheet.dart';
 import '../../map/presentation/hike_map_view.dart';
 import '../application/tracking_controller.dart';
 import '../application/tracking_state.dart';
-import '../data/track_point_repository.dart';
-import '../domain/track_point.dart';
 import '../domain/trip.dart';
 
 /// Tracking screen — full implementation per DESIGN.md §11.2.
@@ -83,19 +81,35 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(HSpacing.s4),
-              child: Row(
+              child: Column(
                 children: <Widget>[
-                  _RoundIconButton(
-                    icon: Icons.arrow_back_rounded,
-                    onTap: () => context.pop(),
+                  Row(
+                    children: <Widget>[
+                      _RoundIconButton(
+                        icon: Icons.arrow_back_rounded,
+                        onTap: () => context.pop(),
+                      ),
+                      const Spacer(),
+                      _RoundIconButton(
+                        icon: Icons.health_and_safety_outlined,
+                        color: HColors.alpenglow500,
+                        onTap: () => context.push(AppRoute.sos),
+                        semanticLabel: l.sosTitle,
+                      ),
+                    ],
                   ),
-                  const Spacer(),
-                  _RoundIconButton(
-                    icon: Icons.health_and_safety_outlined,
-                    color: HColors.alpenglow500,
-                    onTap: () => context.push(AppRoute.sos),
-                    semanticLabel: l.sosTitle,
-                  ),
+                  if (session.offRouteDistanceMeters != null) ...<Widget>[
+                    const SizedBox(height: HSpacing.s2),
+                    _OffRouteBanner(
+                      meters: session.offRouteDistanceMeters!,
+                      onMute: () => ref
+                          .read(trackingControllerProvider.notifier)
+                          .muteOffRouteWarning(),
+                      onDismiss: () => ref
+                          .read(trackingControllerProvider.notifier)
+                          .dismissOffRouteWarning(),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -235,6 +249,8 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                         ],
                       ),
                     ],
+                    const SizedBox(height: HSpacing.s4),
+                    _ModeSelector(currentMode: session.mode),
                     const SizedBox(height: HSpacing.s6),
                     _ActionButtons(session: session, onSaved: _afterStopSaved),
                     const SizedBox(height: HSpacing.s10),
@@ -450,3 +466,129 @@ final StreamProvider.family<List<Checkpoint>, String> _tripCheckpointsProvider =
     StreamProvider.family<List<Checkpoint>, String>((Ref ref, String tripId) {
   return ref.watch(checkpointRepositoryProvider).watchByTripId(tripId);
 });
+
+class _ModeSelector extends ConsumerWidget {
+  const _ModeSelector({required this.currentMode});
+  final TrackingMode currentMode;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final HSurface s = Theme.of(context).extension<HSurface>()!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          'MODE TRACKING',
+          style: HTypography.labelMd.copyWith(color: s.textTertiary),
+        ),
+        const SizedBox(height: HSpacing.s2),
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: s.surfaceMuted,
+            borderRadius: BorderRadius.circular(HRadius.full),
+            border: Border.all(color: s.borderSubtle),
+          ),
+          child: Row(
+            children: <Widget>[
+              for (final TrackingMode mode in TrackingMode.values)
+                Expanded(
+                  child: _ModePill(
+                    mode: mode,
+                    selected: currentMode == mode,
+                    onTap: () => ref
+                        .read(trackingControllerProvider.notifier)
+                        .switchMode(mode),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ModePill extends StatelessWidget {
+  const _ModePill({required this.mode, required this.selected, required this.onTap});
+  final TrackingMode mode;
+  final bool selected;
+  final VoidCallback onTap;
+
+  String get _label => switch (mode) {
+        TrackingMode.highAccuracy => 'Akurat',
+        TrackingMode.balanced => 'Seimbang',
+        TrackingMode.batterySaver => 'Hemat',
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    final HSurface s = Theme.of(context).extension<HSurface>()!;
+    return Material(
+      color: selected ? s.actionPrimary : Colors.transparent,
+      borderRadius: BorderRadius.circular(HRadius.full),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(HRadius.full),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: HSpacing.s2),
+          child: Center(
+            child: Text(
+              _label,
+              style: HTypography.labelLg.copyWith(
+                color: selected ? s.actionPrimaryFg : s.textSecondary,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OffRouteBanner extends StatelessWidget {
+  const _OffRouteBanner({
+    required this.meters,
+    required this.onMute,
+    required this.onDismiss,
+  });
+
+  final double meters;
+  final VoidCallback onMute;
+  final VoidCallback onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: HSpacing.s3,
+        vertical: HSpacing.s3,
+      ),
+      decoration: BoxDecoration(
+        color: HColors.warningBg,
+        borderRadius: BorderRadius.circular(HRadius.md),
+        border: Border.all(color: HColors.warningBorder),
+      ),
+      child: Row(
+        children: <Widget>[
+          const Icon(Icons.alt_route_rounded, color: HColors.alpenglow300, size: 18),
+          const SizedBox(width: HSpacing.s2),
+          Expanded(
+            child: Text(
+              'Off-route ±${meters.round()}m dari jalur',
+              style: HTypography.bodyMd.copyWith(color: HColors.alpenglow300),
+            ),
+          ),
+          TextButton(
+            onPressed: onDismiss,
+            child: const Text('Tutup'),
+          ),
+          TextButton(
+            onPressed: onMute,
+            child: const Text('Sengaja'),
+          ),
+        ],
+      ),
+    );
+  }
+}

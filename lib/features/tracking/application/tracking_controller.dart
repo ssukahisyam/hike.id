@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/utils/distance.dart' as geo;
+import '../../../core/utils/off_route.dart';
 import '../../../core/widgets/gps_accuracy_indicator.dart';
 import '../data/gps_service.dart';
 import '../data/track_point_repository.dart';
@@ -47,9 +48,19 @@ class TrackingController extends StateNotifier<TrackingSession> {
   StreamSubscription<GpsFix>? _gpsSub;
   Timer? _ticker;
   Timer? _autoSaveTimer;
-  TrackingFix? _lastSavedFix;
   DateTime? _lastTickAt;
   final List<TrackPoint> _pendingPoints = <TrackPoint>[];
+
+  /// Polyline yang sedang difollow (dari imported GPX). Null = free-roam,
+  /// off-route detector tidak aktif.
+  List<geo.LatLng>? _followedRoute;
+  final OffRouteDetector _offRoute = OffRouteDetector();
+
+  /// Pasang rute yang sedang difollow — biasanya dipanggil setelah
+  /// user pilih GPX dari history "Follow this route".
+  void setFollowedRoute(List<geo.LatLng>? route) {
+    _followedRoute = route;
+  }
 
   /// Cek apakah ada session aktif yang belum ditutup. Dipanggil saat app
   /// startup (US-TRK-05). Kalau ada, otomatis resume agar data tidak hilang.
@@ -110,7 +121,6 @@ class TrackingController extends StateNotifier<TrackingSession> {
       mode: mode,
       clearError: true,
     );
-    _lastSavedFix = null;
     _lastTickAt = now;
     _pendingPoints.clear();
     await _startGpsStream();
@@ -192,6 +202,17 @@ class TrackingController extends StateNotifier<TrackingSession> {
       await _startGpsStream();
     }
     await _persistTripSnapshot();
+  }
+
+  /// Mute off-route warning untuk session ini (user sengaja off-route).
+  void muteOffRouteWarning() {
+    _offRoute.mute();
+    state = state.copyWith(clearOffRoute: true);
+  }
+
+  /// Dismiss the active off-route warning UI but keep detector armed.
+  void dismissOffRouteWarning() {
+    state = state.copyWith(clearOffRoute: true);
   }
 
   Future<void> _startGpsStream() async {
@@ -280,6 +301,19 @@ class TrackingController extends StateNotifier<TrackingSession> {
       heading: fix.heading,
       timestamp: fix.timestamp,
     ));
+
+    // Off-route check (PRD §4.9). Threshold default 100m, cooldown 60s.
+    if (_followedRoute != null) {
+      final OffRouteResult? warn = _offRoute.evaluate(
+        userPosition: geo.LatLng(fix.latitude, fix.longitude),
+        route: _followedRoute!,
+      );
+      if (warn != null) {
+        state = state.copyWith(
+          offRouteDistanceMeters: warn.distanceMeters,
+        );
+      }
+    }
   }
 
   void _onGpsError(Object err, StackTrace st) {
