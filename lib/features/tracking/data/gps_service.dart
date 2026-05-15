@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -79,24 +80,108 @@ class GeolocatorGpsService implements GpsService {
     }
   }
 
+  /// Build LocationSettings — Android dapat foreground service config
+  /// supaya tracking jalan saat layar mati / app di background (PRD US-TRK-02).
+  ///
+  /// iOS pakai AppleSettings dengan `showBackgroundLocationIndicator` aktif
+  /// supaya user tahu app sedang track.
   LocationSettings _settingsFor(TrackingMode mode) {
-    // Mapping dari PRD §4.3 (US-TRK-04) — 3 mode tracking.
+    final LocationAccuracy accuracy = _accuracyFor(mode);
+    final int distanceFilter = _distanceFilterFor(mode);
+
+    if (Platform.isAndroid) {
+      return AndroidSettings(
+        accuracy: accuracy,
+        distanceFilter: distanceFilter,
+        // Wake lock supaya CPU tetap nyala saat layar mati — wajib untuk
+        // tracking pendakian panjang.
+        // ignore: avoid_redundant_argument_values
+        forceLocationManager: false,
+        intervalDuration: _intervalFor(mode),
+        foregroundNotificationConfig: ForegroundNotificationConfig(
+          notificationTitle: _notificationTitle(mode),
+          notificationText: _notificationText(mode),
+          notificationChannelName: 'Tracking aktif',
+          enableWakeLock: true,
+          setOngoing: true,
+        ),
+      );
+    }
+
+    if (Platform.isIOS || Platform.isMacOS) {
+      return AppleSettings(
+        accuracy: accuracy,
+        distanceFilter: distanceFilter,
+        // Indicator persistent di status bar iOS saat di background.
+        showBackgroundLocationIndicator: true,
+        pauseLocationUpdatesAutomatically: false,
+        activityType: ActivityType.fitness,
+      );
+    }
+
+    return LocationSettings(
+      accuracy: accuracy,
+      distanceFilter: distanceFilter,
+    );
+  }
+
+  // Mapping mode → akurasi (PRD §4.3 / US-TRK-04).
+  LocationAccuracy _accuracyFor(TrackingMode mode) {
     switch (mode) {
       case TrackingMode.highAccuracy:
-        return const LocationSettings(
-          accuracy: LocationAccuracy.bestForNavigation,
-          distanceFilter: 0,
-        );
+        return LocationAccuracy.bestForNavigation;
       case TrackingMode.balanced:
-        return const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          distanceFilter: 5,
-        );
+        return LocationAccuracy.high;
       case TrackingMode.batterySaver:
-        return const LocationSettings(
-          accuracy: LocationAccuracy.medium,
-          distanceFilter: 15,
-        );
+        return LocationAccuracy.medium;
+    }
+  }
+
+  /// Distance filter (meter) — buang update yang lebih dekat dari ini
+  /// supaya battery hemat. 0 = tidak ada filter.
+  int _distanceFilterFor(TrackingMode mode) {
+    switch (mode) {
+      case TrackingMode.highAccuracy:
+        return 0;
+      case TrackingMode.balanced:
+        return 5;
+      case TrackingMode.batterySaver:
+        return 15;
+    }
+  }
+
+  /// Interval polling Android. Native akan tetap respect distance filter,
+  /// tapi interval ini batas atas frekuensi sample.
+  Duration _intervalFor(TrackingMode mode) {
+    switch (mode) {
+      case TrackingMode.highAccuracy:
+        return const Duration(seconds: 3);
+      case TrackingMode.balanced:
+        return const Duration(seconds: 10);
+      case TrackingMode.batterySaver:
+        return const Duration(seconds: 30);
+    }
+  }
+
+  String _notificationTitle(TrackingMode mode) {
+    switch (mode) {
+      case TrackingMode.highAccuracy:
+        return 'Hike.id — Tracking Akurat';
+      case TrackingMode.balanced:
+        return 'Hike.id — Tracking Aktif';
+      case TrackingMode.batterySaver:
+        return 'Hike.id — Tracking Hemat';
+    }
+  }
+
+  String _notificationText(TrackingMode mode) {
+    switch (mode) {
+      case TrackingMode.highAccuracy:
+        return 'Sample tiap 3–5 detik. Konsumsi daya tinggi.';
+      case TrackingMode.balanced:
+        return 'Sample tiap 10–15 detik. Mode default.';
+      case TrackingMode.batterySaver:
+        return 'Sample tiap 30–60 detik. Hemat baterai.';
     }
   }
 
