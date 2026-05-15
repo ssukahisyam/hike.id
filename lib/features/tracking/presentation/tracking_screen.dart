@@ -270,7 +270,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Trip "${trip.name}" tersimpan')),
       );
-      context.go('${AppRoute.history}');
+      context.go(AppRoute.history);
     }
   }
 
@@ -462,8 +462,8 @@ class _RoundIconButton extends StatelessWidget {
 }
 
 /// Stream provider untuk daftar checkpoint trip — auto-update saat tambah baru.
-final StreamProvider.family<List<Checkpoint>, String> _tripCheckpointsProvider =
-    StreamProvider.family<List<Checkpoint>, String>((Ref ref, String tripId) {
+final _tripCheckpointsProvider = StreamProvider.family<List<Checkpoint>, String>(
+    (Ref ref, String tripId) {
   return ref.watch(checkpointRepositoryProvider).watchByTripId(tripId);
 });
 

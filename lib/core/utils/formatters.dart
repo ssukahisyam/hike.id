@@ -37,7 +37,7 @@ class Format {
     final double secPerKm = 1000 / mps;
     final int minutes = secPerKm ~/ 60;
     final int seconds = (secPerKm % 60).round();
-    return '${minutes}:${_pad(seconds)} /km';
+    return '$minutes:${_pad(seconds)} /km';
   }
 
   /// 2345 m elev -> "2.345 m"

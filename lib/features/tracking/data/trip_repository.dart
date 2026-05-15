@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/local/database.dart';
-import '../../../data/local/tables.dart';
 import '../domain/trip.dart';
 
 /// Repository untuk Trip — wrapper di atas Drift database.
@@ -25,7 +24,7 @@ class TripRepository {
   }
 
   Future<Trip?> findById(String id) async {
-    final TripData? row = await (_db.select(_db.trips)
+    final TripRow? row = await (_db.select(_db.trips)
           ..where(($TripsTable t) => t.id.equals(id))
           ..limit(1))
         .getSingleOrNull();
@@ -34,18 +33,18 @@ class TripRepository {
 
   /// Stream semua trip non-discarded, terurut terbaru dulu.
   Stream<List<Trip>> watchAll({int? limit}) {
-    final SimpleSelectStatement<$TripsTable, TripData> q = _db.select(_db.trips)
+    final SimpleSelectStatement<$TripsTable, TripRow> q = _db.select(_db.trips)
       ..where(($TripsTable t) => t.status.isNotValue(TripStatus.discarded.name))
       ..orderBy(<OrderClauseGenerator<$TripsTable>>[
         ($TripsTable t) => OrderingTerm(expression: t.startedAt, mode: OrderingMode.desc),
       ]);
     if (limit != null) q.limit(limit);
-    return q.watch().map((List<TripData> rows) => rows.map(_fromRow).toList());
+    return q.watch().map((List<TripRow> rows) => rows.map(_fromRow).toList());
   }
 
   /// Trip yang masih aktif/paused (untuk crash recovery — PRD US-TRK-05).
   Future<Trip?> findActiveOrPaused() async {
-    final TripData? row = await (_db.select(_db.trips)
+    final TripRow? row = await (_db.select(_db.trips)
           ..where(($TripsTable t) =>
               t.status.equals(TripStatus.active.name) |
               t.status.equals(TripStatus.paused.name))
@@ -82,7 +81,7 @@ class TripRepository {
     );
   }
 
-  Trip _fromRow(TripData row) {
+  Trip _fromRow(TripRow row) {
     return Trip(
       id: row.id,
       name: row.name,

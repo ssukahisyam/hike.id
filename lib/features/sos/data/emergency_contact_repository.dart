@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/local/database.dart';
-import '../../../data/local/tables.dart';
 import '../domain/emergency_contact.dart';
 
 class EmergencyContactRepository {
@@ -33,11 +32,11 @@ class EmergencyContactRepository {
             ($EmergencyContactsTable t) => OrderingTerm(expression: t.createdAt),
           ]))
         .watch()
-        .map((List<EmergencyContactData> rows) => rows.map(_fromRow).toList());
+        .map((List<EmergencyContactRow> rows) => rows.map(_fromRow).toList());
   }
 
   Future<List<EmergencyContact>> findAll() async {
-    final List<EmergencyContactData> rows = await (_db.select(_db.emergencyContacts)
+    final List<EmergencyContactRow> rows = await (_db.select(_db.emergencyContacts)
           ..orderBy(<OrderClauseGenerator<$EmergencyContactsTable>>[
             ($EmergencyContactsTable t) => OrderingTerm(expression: t.priority),
           ]))
@@ -56,7 +55,7 @@ class EmergencyContactRepository {
     );
   }
 
-  EmergencyContact _fromRow(EmergencyContactData row) {
+  EmergencyContact _fromRow(EmergencyContactRow row) {
     return EmergencyContact(
       id: row.id,
       name: row.name,

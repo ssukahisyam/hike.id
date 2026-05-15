@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/local/database.dart';
-import '../../../data/local/tables.dart';
 import '../domain/checkpoint.dart';
 
 class CheckpointRepository {
@@ -24,7 +23,7 @@ class CheckpointRepository {
   }
 
   Future<List<Checkpoint>> findByTripId(String tripId) async {
-    final List<CheckpointData> rows = await (_db.select(_db.checkpoints)
+    final List<CheckpointRow> rows = await (_db.select(_db.checkpoints)
           ..where(($CheckpointsTable t) => t.tripId.equals(tripId))
           ..orderBy(<OrderClauseGenerator<$CheckpointsTable>>[
             ($CheckpointsTable t) => OrderingTerm(expression: t.createdAt),
@@ -40,7 +39,7 @@ class CheckpointRepository {
             ($CheckpointsTable t) => OrderingTerm(expression: t.createdAt),
           ]))
         .watch()
-        .map((List<CheckpointData> rows) => rows.map(_fromRow).toList());
+        .map((List<CheckpointRow> rows) => rows.map(_fromRow).toList());
   }
 
   Future<int> countByTripId(String tripId) async {
@@ -66,7 +65,7 @@ class CheckpointRepository {
     );
   }
 
-  Checkpoint _fromRow(CheckpointData row) {
+  Checkpoint _fromRow(CheckpointRow row) {
     return Checkpoint(
       id: row.id,
       tripId: row.tripId,

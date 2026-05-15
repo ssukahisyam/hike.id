@@ -99,7 +99,7 @@ class HomeScreen extends ConsumerWidget {
               ...recent.map((Trip t) => Padding(
                     padding: const EdgeInsets.only(bottom: HSpacing.s2),
                     child: _RecentTripCard(trip: t),
-                  )),
+                  ),),
             const SizedBox(height: HSpacing.sectionGap),
             SectionHeader(label: l.homeQuickStatsSection),
             const SizedBox(height: HSpacing.s3),

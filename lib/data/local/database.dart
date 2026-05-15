@@ -29,7 +29,7 @@ part 'database.g.dart';
 class HikeIdDatabase extends _$HikeIdDatabase {
   HikeIdDatabase() : super(_open());
 
-  HikeIdDatabase.executor(QueryExecutor executor) : super(executor);
+  HikeIdDatabase.executor(super.executor);
 
   @override
   int get schemaVersion => 1;

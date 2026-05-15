@@ -26,8 +26,8 @@ import '../../tracking/data/trip_repository.dart';
 import '../../tracking/domain/track_point.dart';
 import '../../tracking/domain/trip.dart';
 
-final FutureProvider.family<_TripDetailData, String> _detailProvider =
-    FutureProvider.family<_TripDetailData, String>((Ref ref, String id) async {
+final _detailProvider = FutureProvider.family<_TripDetailData, String>(
+    (Ref ref, String id) async {
   final Trip? trip = await ref.watch(tripRepositoryProvider).findById(id);
   if (trip == null) {
     return const _TripDetailData(trip: null, points: <TrackPoint>[], checkpoints: <Checkpoint>[]);
@@ -205,7 +205,7 @@ class TripDetailScreen extends ConsumerWidget {
                                 ],
                               ),
                             ),
-                          )),
+                          ),),
                     const SizedBox(height: HSpacing.s8),
                   ],
                 ),

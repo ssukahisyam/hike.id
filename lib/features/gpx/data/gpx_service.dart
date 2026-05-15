@@ -61,7 +61,7 @@ class GpxService {
             longitude: wp.lon!,
             elevation: wp.ele,
             timestamp: wp.time,
-          ));
+          ),);
         }
       }
     }
@@ -74,7 +74,7 @@ class GpxService {
           longitude: wp.lon!,
           elevation: wp.ele,
           timestamp: wp.time,
-        ));
+        ),);
       }
     }
 

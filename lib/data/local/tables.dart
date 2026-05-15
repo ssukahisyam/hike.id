@@ -3,7 +3,12 @@ import 'package:drift/drift.dart';
 /// Drift table definitions sesuai PRD §5 — Data Model.
 ///
 /// File besar (foto, voice) disimpan di file storage; di tabel hanya path.
+///
+/// Catatan penting: tiap tabel pakai `@DataClassName('XxxRow')` agar
+/// row class generated tidak konflik dengan domain entity (mis. domain
+/// `Trip` vs Drift row `Trip`).
 
+@DataClassName('TripRow')
 class Trips extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
@@ -30,6 +35,7 @@ class Trips extends Table {
   Set<Column<Object>> get primaryKey => <Column<Object>>{id};
 }
 
+@DataClassName('TrackPointRow')
 class TrackPoints extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get tripId => text().references(Trips, #id, onDelete: KeyAction.cascade)();
@@ -43,6 +49,7 @@ class TrackPoints extends Table {
   BoolColumn get isPaused => boolean().withDefault(const Constant<bool>(false))();
 }
 
+@DataClassName('CheckpointRow')
 class Checkpoints extends Table {
   TextColumn get id => text()();
   TextColumn get tripId => text().nullable().references(Trips, #id, onDelete: KeyAction.cascade)();
@@ -58,6 +65,7 @@ class Checkpoints extends Table {
   Set<Column<Object>> get primaryKey => <Column<Object>>{id};
 }
 
+@DataClassName('NoteRow')
 class Notes extends Table {
   TextColumn get id => text()();
   TextColumn get tripId =>
@@ -76,6 +84,7 @@ class Notes extends Table {
   Set<Column<Object>> get primaryKey => <Column<Object>>{id};
 }
 
+@DataClassName('EmergencyContactRow')
 class EmergencyContacts extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
@@ -88,6 +97,7 @@ class EmergencyContacts extends Table {
   Set<Column<Object>> get primaryKey => <Column<Object>>{id};
 }
 
+@DataClassName('SosLogRow')
 class SosLogs extends Table {
   TextColumn get id => text()();
   IntColumn get openedAt => integer()();
@@ -102,6 +112,7 @@ class SosLogs extends Table {
   Set<Column<Object>> get primaryKey => <Column<Object>>{id};
 }
 
+@DataClassName('AppSettingRow')
 class AppSettingsTable extends Table {
   TextColumn get key => text()();
   TextColumn get value => text()();

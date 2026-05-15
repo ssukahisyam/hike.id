@@ -207,7 +207,7 @@ class _MonthlyActivityHeatmap extends StatelessWidget {
         key: key,
         label: _shortMonth(d.month),
         duration: months[key] ?? Duration.zero,
-      ));
+      ),);
     }
 
     final Duration max = last12

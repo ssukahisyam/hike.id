@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/local/database.dart';
-import '../../../data/local/tables.dart';
 import '../domain/track_point.dart';
 
 class TrackPointRepository {
@@ -22,7 +21,7 @@ class TrackPointRepository {
   }
 
   Future<List<TrackPoint>> findByTripId(String tripId) async {
-    final List<TrackPointData> rows = await (_db.select(_db.trackPoints)
+    final List<TrackPointRow> rows = await (_db.select(_db.trackPoints)
           ..where(($TrackPointsTable t) => t.tripId.equals(tripId))
           ..orderBy(<OrderClauseGenerator<$TrackPointsTable>>[
             ($TrackPointsTable t) => OrderingTerm(expression: t.timestamp),
@@ -38,7 +37,7 @@ class TrackPointRepository {
             ($TrackPointsTable t) => OrderingTerm(expression: t.timestamp),
           ]))
         .watch()
-        .map((List<TrackPointData> rows) => rows.map(_fromRow).toList());
+        .map((List<TrackPointRow> rows) => rows.map(_fromRow).toList());
   }
 
   Future<int> deleteByTripId(String tripId) {
@@ -61,7 +60,7 @@ class TrackPointRepository {
     );
   }
 
-  TrackPoint _fromRow(TrackPointData row) {
+  TrackPoint _fromRow(TrackPointRow row) {
     return TrackPoint(
       id: row.id,
       tripId: row.tripId,

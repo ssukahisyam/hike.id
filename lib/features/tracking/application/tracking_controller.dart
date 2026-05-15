@@ -300,7 +300,7 @@ class TrackingController extends StateNotifier<TrackingSession> {
       speed: fix.speed,
       heading: fix.heading,
       timestamp: fix.timestamp,
-    ));
+    ),);
 
     // Off-route check (PRD §4.9). Threshold default 100m, cooldown 60s.
     if (_followedRoute != null) {
