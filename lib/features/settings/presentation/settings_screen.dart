@@ -9,6 +9,7 @@ import '../../../core/theme/typography.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../feedback/presentation/bug_report_sheet.dart';
 import '../../tracking/application/tracking_preferences.dart';
 import '../../tracking/domain/trip.dart';
 
@@ -95,19 +96,50 @@ class SettingsScreen extends ConsumerWidget {
             SectionHeader(label: l.settingsAbout),
             const SizedBox(height: HSpacing.s3),
             AppCard(
+              padding: EdgeInsets.zero,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(l.appName, style: HTypography.headingMd.copyWith(color: s.textPrimary)),
-                  const SizedBox(height: 2),
-                  Text(
-                    'v0.1.0 — ${l.tagline}',
-                    style: HTypography.bodySm.copyWith(color: s.textSecondary),
+                  InkWell(
+                    onTap: () => showBugReportSheet(context),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: HSpacing.s4,
+                        vertical: HSpacing.s4,
+                      ),
+                      child: Row(
+                        children: <Widget>[
+                          Icon(Icons.bug_report_outlined, color: s.textSecondary),
+                          const SizedBox(width: HSpacing.s3),
+                          Expanded(
+                            child: Text(
+                              'Lapor bug',
+                              style: HTypography.bodyLg.copyWith(color: s.textPrimary),
+                            ),
+                          ),
+                          Icon(Icons.chevron_right_rounded, color: s.textTertiary),
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: HSpacing.s3),
-                  Text(
-                    'Map © OpenStreetMap contributors (ODbL)',
-                    style: HTypography.bodySm.copyWith(color: s.textTertiary),
+                  Divider(color: s.divider, height: 1),
+                  Padding(
+                    padding: const EdgeInsets.all(HSpacing.s4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(l.appName, style: HTypography.headingMd.copyWith(color: s.textPrimary)),
+                        const SizedBox(height: 2),
+                        Text(
+                          'v0.1.0 — ${l.tagline}',
+                          style: HTypography.bodySm.copyWith(color: s.textSecondary),
+                        ),
+                        const SizedBox(height: HSpacing.s3),
+                        Text(
+                          'Map © OpenStreetMap contributors (ODbL)',
+                          style: HTypography.bodySm.copyWith(color: s.textTertiary),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

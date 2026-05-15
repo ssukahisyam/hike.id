@@ -62,7 +62,7 @@ flutter build apk --release
 # Hasil: build/app/outputs/flutter-apk/app-release.apk
 ```
 
-Untuk private testing, APK boleh debug-signed (sudah dikonfigurasi di `android/app/build.gradle.kts` sebagai fallback). Production signing menyusul di Phase 10 (PLANNING §7).
+Untuk private testing, APK boleh debug-signed (sudah dikonfigurasi di `android/app/build.gradle.kts` sebagai fallback). GitHub Actions workflow `.github/workflows/release_apk.yml` membuild APK debug-signed otomatis saat tag `v*` di-push, dan APK ter-attach ke GitHub Release. Production signing menyusul saat siap publish ke Play Store. Detail proses rilis: `RELEASE_CHECKLIST.md`. Panduan tester install: `INSTALL_GUIDE.md`.
 
 ## Struktur Folder
 
@@ -119,12 +119,13 @@ Lihat PLANNING_HIKEID.md §7 untuk roadmap fase. Saat ini app berada di:
 - Phase 1 — Project foundation (theme, navigation, locale, CI) — **selesai**
 - Phase 2 — Local data foundation (Drift tables, repositories) — **selesai**
 - Phase 3 — GPS tracking core (geolocator, state notifier, auto-save, recovery) — **selesai**
-- Phase 4 — Background tracking & battery modes — belum (perlu real device test)
+- Phase 4 — Background tracking & battery modes — **selesai (perlu real device test)**
 - Phase 5 — Map & offline (flutter_map, OSM tiles, polylines) — **selesai (online)**
 - Phase 6 — GPX import & export — **selesai**
 - Phase 7 — Checkpoint & notes — **checkpoint selesai**, photo/voice note belum
 - Phase 8 — Safety / SOS (last-known location, contacts CRUD, share, off-route warning) — **selesai**
 - Phase 9 — Stats lanjut (profil elevasi chart, personal best, monthly heatmap) & UI polish — **selesai**
-- Phase 10 — Release APK distribusi — belum
+- Phase 10a — Release pipeline private testing (workflow APK debug-signed, docs, in-app bug reporter) — **selesai**
+- Phase 10b — Play Store / production signing — belum (menunggu hasil private testing)
 
 Yang masih perlu real device / opsional: tile cache offline (FMTC), background foreground service, photo/voice notes, in-app purchase paywall.
