@@ -47,10 +47,18 @@ class HistoryScreen extends ConsumerWidget {
                   icon: Icons.terrain_outlined,
                   headline: l.historyEmptyHeadline,
                   body: l.historyEmptyBody,
-                  action: AppButton(
-                    label: l.homeStartHike,
-                    fullWidth: false,
-                    onPressed: () => context.push(AppRoute.tracking),
+                  action: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      AppButton(
+                        label: l.homeStartHike,
+                        icon: Icons.play_arrow_rounded,
+                        fullWidth: false,
+                        onPressed: () => context.push(AppRoute.tracking),
+                      ),
+                      const SizedBox(height: HSpacing.s2),
+                      const _ImportGpxTextButton(),
+                    ],
                   ),
                 )
               : ListView.separated(
@@ -180,6 +188,23 @@ class _InlineStat extends StatelessWidget {
         const SizedBox(height: 2),
         Text(value, style: HTypography.monoMd.copyWith(color: s.textPrimary)),
       ],
+    );
+  }
+}
+
+
+/// Tombol text-style 'Import GPX' di empty state — lebih obvious daripada
+/// icon kecil di app bar. Memanggil GpxImportButton.pickAndPreview
+/// (static helper) supaya UI logic tidak duplikat.
+class _ImportGpxTextButton extends ConsumerWidget {
+  const _ImportGpxTextButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return TextButton.icon(
+      onPressed: () => GpxImportButton.pickAndPreview(context, ref),
+      icon: const Icon(Icons.file_upload_outlined),
+      label: const Text('Import dari GPX'),
     );
   }
 }

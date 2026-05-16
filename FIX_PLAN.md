@@ -223,7 +223,7 @@ Detail di `TEST_CHECKLIST.md`.
 | 2 | Permission UX Flow (request di startup + banner home) | ✅ Done | _next_ | 16 Mei |
 | 3 | FAB "Lokasi saya" di home/map | ✅ Done | _next_ | 16 Mei |
 | 4 | FAB checkpoint visibility & SOS quick access | ✅ Done | _next_ | 16 Mei |
-| 5 | GPX Import/Export Visible | ⏳ | — | — |
+| 5 | GPX Import/Export Visible | ✅ Done | _next_ | 16 Mei |
 | 6 | Empty States Actionable | ⏳ | — | — |
 | 7 | Battery Low Notification | ⏳ Optional | — | — |
 | 8 | Update Docs + Bump Version | ⏳ | — | — |

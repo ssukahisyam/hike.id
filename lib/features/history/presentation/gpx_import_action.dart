@@ -18,11 +18,14 @@ class GpxImportButton extends ConsumerWidget {
     return IconButton(
       tooltip: 'Import GPX',
       icon: const Icon(Icons.file_upload_outlined),
-      onPressed: () => _pickAndPreview(context, ref),
+      onPressed: () => pickAndPreview(context, ref),
     );
   }
 
-  Future<void> _pickAndPreview(BuildContext context, WidgetRef ref) async {
+  /// Static helper untuk pick file GPX & buka preview screen.
+  /// Diekspos sebagai static supaya bisa dipanggil dari empty state /
+  /// FAB lain tanpa duplikasi kode.
+  static Future<void> pickAndPreview(BuildContext context, WidgetRef ref) async {
     final AppLocalizations l = AppLocalizations.of(context);
     try {
       final FilePickerResult? result = await FilePicker.platform.pickFiles(
