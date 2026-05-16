@@ -176,7 +176,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                       Container(
                         padding: const EdgeInsets.all(HSpacing.s3),
                         decoration: BoxDecoration(
-                          color: HColors.dangerBg.withOpacity(0.15),
+                          color: HColors.dangerBg.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(HRadius.md),
                           border: Border.all(color: HColors.danger),
                         ),
@@ -456,7 +456,7 @@ class _RoundIconButton extends StatelessWidget {
       button: true,
       label: semanticLabel,
       child: Material(
-        color: s.surface.withOpacity(0.95),
+        color: s.surface.withValues(alpha: 0.95),
         shape: const CircleBorder(),
         elevation: 1,
         child: InkWell(

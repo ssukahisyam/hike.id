@@ -178,7 +178,7 @@ class TripDetailScreen extends ConsumerWidget {
                                     width: 32,
                                     height: 32,
                                     decoration: BoxDecoration(
-                                      color: c.type.color.withOpacity(0.18),
+                                      color: c.type.color.withValues(alpha: 0.18),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(c.type.icon, size: 18, color: c.type.color),

@@ -75,7 +75,7 @@ class ElevationProfileChart extends StatelessWidget {
                 painter: _ElevationPainter(
                   elevations: elevations,
                   distancesMeters: distancesMeters,
-                  fillColor: HColors.forest500.withOpacity(0.15),
+                  fillColor: HColors.forest500.withValues(alpha: 0.15),
                   strokeColor: HColors.forest500,
                   axisColor: s.borderSubtle,
                 ),

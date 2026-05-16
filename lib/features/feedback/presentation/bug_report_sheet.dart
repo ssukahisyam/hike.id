@@ -88,11 +88,13 @@ class _BugReportSheetState extends State<_BugReportSheet> {
   Uri _githubIssueUri() {
     final String title = _titleCtrl.text.trim();
     final String body = _composeBody();
-    return Uri.parse(_kIssueUrlBase).replace(queryParameters: <String, String>{
-      'title': title.isEmpty ? '[bug] ' : title,
-      'body': body,
-      'labels': 'bug,private-testing',
-    });
+    return Uri.parse(_kIssueUrlBase).replace(
+      queryParameters: <String, String>{
+        'title': title.isEmpty ? '[bug] ' : title,
+        'body': body,
+        'labels': 'bug,private-testing',
+      },
+    );
   }
 
   Uri _emailUri() {
@@ -110,8 +112,10 @@ class _BugReportSheetState extends State<_BugReportSheet> {
 
   static String _encodeQueryParameters(Map<String, String> params) {
     return params.entries
-        .map((MapEntry<String, String> e) =>
-            '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value)}')
+        .map(
+          (MapEntry<String, String> e) =>
+              '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value)}',
+        )
         .join('&');
   }
 
