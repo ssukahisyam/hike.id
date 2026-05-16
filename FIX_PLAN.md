@@ -231,13 +231,39 @@ Status legend: ⏳ pending · 🚧 in progress · ✅ done · ⏭ skipped
 
 ---
 
+## Diagnosis Final dari User Feedback (16 Mei 2026)
+
+User menjawab 3 pertanyaan klarifikasi:
+
+1. ✅ **Sudah outdoor** — bukan environment issue
+2. ❌ **"Seharusnya ada popup minta izin"** — popup permission tidak muncul
+3. ❌ **"FAB posisi saya sekarang belum ada bagaimana mau tracking"** — tidak ada tombol "lokasi saya" sebelum tracking
+
+**Root cause tunggal:** App tidak pernah minta permission lokasi sebelum tracking aktif. `ensureReady()` di `gps_service.dart` hanya dipanggil saat `tracking_controller.start()`, jadi:
+
+- Saat user buka app pertama kali — tidak ada dialog permission
+- GPS tidak aktif → tidak ada lokasi di map
+- Tidak ada FAB "lokasi saya" karena `lastFix == null`
+- Saat user tap "Mulai Hike" → permission dialog muncul SAAT user sudah pilih mode
+  → confused UX, user batal
+
+## Revised Plan — Prioritas Ulang
+
+Karena P0 jelas teridentifikasi, saya skip Tahap 1 (diagnostic logging — sudah tidak perlu).
+Tahap urutan baru:
+
+| # | Tahap | Status |
+|---|---|---|
+| ~~1~~ | ~~Diagnostic logging~~ | ⏭ Skipped — diagnosis sudah jelas |
+| 2 | Permission request di app startup + UX flow proper | 🚧 Next |
+| 3 | FAB "Lokasi saya" + last-known location di home/map (sebelum tracking) | Next |
+| 4 | FAB checkpoint di tracking — fix visibility logic | Next |
+| 5 | GPX import/export lebih obvious | Next |
+| 6 | Empty states actionable | Next |
+| 7 | Battery low notification | Opsional |
+| 8 | Update docs + bump version 0.1.1 | Last |
+
 ## Catatan untuk User
 
-Sebelum saya mulai eksekusi tahap 1, saya butuh konfirmasi **3 hal**:
-
-1. **Tracking GPS sudah dicoba outdoor dengan langit terbuka?** (Indoor 90% gagal lock dalam 2-5 menit pertama)
-2. **Permission lokasi sudah Allow?** (Cek: HP Settings → Apps → Hike.id → Permissions → Location)
-3. **FAB yang mana yang user maksud?** (Checkpoint? SOS button? Lainnya?)
-
-Kalau kita yakin masalah memang ada (bukan user error), saya akan eksekusi 7 tahap di atas berurutan. Kalau ternyata tracking jalan setelah outdoor — kita lompat ke fix lain saja.
+3 pertanyaan sudah dijawab. Eksekusi dimulai dari Tahap 2.
 
