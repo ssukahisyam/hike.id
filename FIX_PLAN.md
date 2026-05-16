@@ -219,13 +219,14 @@ Detail di `TEST_CHECKLIST.md`.
 
 | # | Tahap | Status | Commit | Date |
 |---|---|---|---|---|
-| 1 | Audit & Diagnostic Logging | ⏳ | — | — |
-| 2 | Permission UX Flow | ⏳ | — | — |
-| 3 | FAB Visibility & SOS | ⏳ | — | — |
-| 4 | GPX Import/Export Visible | ⏳ | — | — |
-| 5 | Empty States Actionable | ⏳ | — | — |
-| 6 | Battery Low Notification | ⏳ | — | — |
-| 7 | Update Docs | ⏳ | — | — |
+| ~~1~~ | ~~Diagnostic logging~~ | ⏭ Skipped | — | — |
+| 2 | Permission UX Flow (request di startup + banner home) | ✅ Done | _next_ | 16 Mei |
+| 3 | FAB "Lokasi saya" di home/map | ⏳ | — | — |
+| 4 | FAB checkpoint visibility & SOS quick access | ⏳ | — | — |
+| 5 | GPX Import/Export Visible | ⏳ | — | — |
+| 6 | Empty States Actionable | ⏳ | — | — |
+| 7 | Battery Low Notification | ⏳ Optional | — | — |
+| 8 | Update Docs + Bump Version | ⏳ | — | — |
 
 Status legend: ⏳ pending · 🚧 in progress · ✅ done · ⏭ skipped
 

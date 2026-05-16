@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/app.dart';
 import 'core/theme/theme_mode_controller.dart';
+import 'features/tracking/application/location_permission_controller.dart';
 import 'features/tracking/application/tracking_controller.dart';
 
 Future<void> main() async {
@@ -33,6 +34,12 @@ Future<void> main() async {
   } on Object catch (_) {
     // Best-effort: gagal recover bukan alasan untuk gagal launch app.
   }
+
+  // Inisialisasi controller permission lokasi — auto-refresh status di
+  // constructor. Dialog request akan dipicu dari widget setelah app launch
+  // (lihat AppShell / HomeScreen) supaya muncul setelah UI ready, bukan
+  // race condition saat splash screen.
+  container.read(locationPermissionProvider);
 
   runApp(
     UncontrolledProviderScope(
