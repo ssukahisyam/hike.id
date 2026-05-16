@@ -1,21 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../services/connectivity_service.dart';
 import '../theme/color_tokens.dart';
 import '../theme/spacing.dart';
 import '../theme/typography.dart';
 
 /// Banner offline — DESIGN.md §6.7.
 ///
-/// Tipis, hangat, persistent — tidak panic-inducing. Saat MVP belum
-/// dipasang ke connectivity_plus stream — caller bisa `show: !online`.
-class OfflineBanner extends StatelessWidget {
-  const OfflineBanner({super.key, required this.show});
+/// Tipis, hangat, persistent — tidak panic-inducing.
+///
+/// Dua bentuk pemakaian:
+///
+/// 1. **Reactive (recommended):** `const OfflineBanner()` — auto-watch
+///    `isOnlineProvider` dan munculkan banner saat user offline.
+/// 2. **Manual:** `OfflineBanner(show: !online)` — caller kontrol kapan
+///    banner muncul. Berguna saat connectivity provider belum tersedia
+///    atau untuk testing.
+class OfflineBanner extends ConsumerWidget {
+  const OfflineBanner({super.key, this.show});
 
-  final bool show;
+  /// Bila null, widget akan auto-watch `isOnlineProvider`.
+  /// Bila non-null, dipakai apa adanya (manual mode).
+  final bool? show;
 
   @override
-  Widget build(BuildContext context) {
-    if (!show) return const SizedBox.shrink();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bool shouldShow;
+    if (show != null) {
+      shouldShow = show!;
+    } else {
+      // Default ke online (banner hidden) selama provider belum emit pertama
+      // — hindari flash banner saat app baru dibuka.
+      final bool online = ref.watch(isOnlineProvider).valueOrNull ?? true;
+      shouldShow = !online;
+    }
+    if (!shouldShow) return const SizedBox.shrink();
     return Container(
       width: double.infinity,
       color: HColors.volcanic700,

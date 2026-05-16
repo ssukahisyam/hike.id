@@ -19,8 +19,10 @@ import '../../checkpoint/domain/checkpoint.dart';
 import '../../checkpoint/presentation/add_checkpoint_sheet.dart';
 import '../../map/presentation/hike_map_view.dart';
 import '../application/tracking_controller.dart';
+import '../application/tracking_preferences.dart';
 import '../application/tracking_state.dart';
 import '../domain/trip.dart';
+import 'start_tracking_sheet.dart';
 
 /// Tracking screen — full implementation per DESIGN.md §11.2.
 class TrackingScreen extends ConsumerStatefulWidget {
@@ -334,7 +336,16 @@ class _ActionButtonsState extends ConsumerState<_ActionButtons> {
             : () async {
                 setState(() => _busy = true);
                 try {
-                  await ctrl.start();
+                  // PRD US-TRK-04 — pilih mode dulu lewat start sheet.
+                  final StartTrackingChoice? choice =
+                      await showStartTrackingSheet(context);
+                  if (choice == null || !mounted) return;
+                  if (choice.saveAsDefault) {
+                    await ref
+                        .read(trackingPreferencesProvider.notifier)
+                        .setDefaultMode(choice.mode);
+                  }
+                  await ctrl.start(mode: choice.mode);
                 } finally {
                   if (mounted) setState(() => _busy = false);
                 }
