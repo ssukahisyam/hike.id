@@ -69,13 +69,14 @@ Snapshot fase saat ini:
 - Phase 1 — Project Foundation: **selesai**
 - Phase 2 — Local Data Foundation: **selesai**
 - Phase 3 — GPS Tracking Core: **selesai**
-- Phase 4 — Background Tracking: belum (perlu real device test)
+- Phase 4 — Background Tracking & battery modes: **selesai (perlu real device test)**
 - Phase 5 — Map & Offline: **selesai (online)**, tile cache offline belum
 - Phase 6 — GPX Import & Export: **selesai**
 - Phase 7 — Checkpoint: **selesai**, photo/voice note belum
 - Phase 8 — Safety / SOS: **selesai (off-route warning + emergency contact)**
 - Phase 9 — Statistik lanjut & UI polish: **selesai (chart elevasi, personal best, monthly heatmap)**
-- Phase 10 — Release: belum (akan dilakukan saat artifact GitHub kembali)
+- Phase 10a — Release pipeline private testing: **selesai (debug-signed APK via GitHub Actions)**
+- Phase 10b — Production / Play Store: belum (menunggu hasil private testing)
 
 ## Lisensi
 
