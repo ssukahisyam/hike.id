@@ -221,7 +221,7 @@ Detail di `TEST_CHECKLIST.md`.
 |---|---|---|---|---|
 | ~~1~~ | ~~Diagnostic logging~~ | ⏭ Skipped | — | — |
 | 2 | Permission UX Flow (request di startup + banner home) | ✅ Done | _next_ | 16 Mei |
-| 3 | FAB "Lokasi saya" di home/map | ⏳ | — | — |
+| 3 | FAB "Lokasi saya" di home/map | ✅ Done | _next_ | 16 Mei |
 | 4 | FAB checkpoint visibility & SOS quick access | ⏳ | — | — |
 | 5 | GPX Import/Export Visible | ⏳ | — | — |
 | 6 | Empty States Actionable | ⏳ | — | — |
