@@ -117,22 +117,25 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
             ),
           ),
           // FAB tambah checkpoint — DESIGN.md §11.2.
-          if (session.isActive && session.lastFix != null)
-            Positioned(
-              right: HSpacing.s4,
-              bottom: MediaQuery.of(context).size.height * 0.4 + HSpacing.s4,
-              child: FloatingActionButton(
-                heroTag: 'add-checkpoint',
-                backgroundColor: s.actionPrimary,
-                foregroundColor: s.actionPrimaryFg,
-                onPressed: () => _addCheckpointAt(
-                  session.lastFix!.latitude,
-                  session.lastFix!.longitude,
-                  elevation: session.lastFix!.elevation,
-                ),
-                child: const Icon(Icons.add_location_alt_outlined),
-              ),
+          // Selalu muncul saat tracking aktif & GPS sudah lock; saat
+          // tracking idle, FAB ganti jadi 'Lokasi Saya' untuk re-center.
+          Positioned(
+            right: HSpacing.s4,
+            bottom: MediaQuery.of(context).size.height * 0.4 + HSpacing.s4,
+            child: _TrackingFab(
+              session: session,
+              mapController: _mapController,
+              onAddCheckpoint: () {
+                final TrackingFix? fix = session.lastFix;
+                if (fix == null) return;
+                _addCheckpointAt(
+                  fix.latitude,
+                  fix.longitude,
+                  elevation: fix.elevation,
+                );
+              },
             ),
+          ),
           DraggableScrollableSheet(
             initialChildSize: 0.36,
             minChildSize: 0.18,
@@ -600,6 +603,66 @@ class _OffRouteBanner extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+
+/// FAB di tracking screen yang berubah role sesuai state:
+///
+/// - Tracking aktif + GPS lock → 'Tambah Checkpoint' (icon add_location)
+/// - Tracking idle/paused + GPS lock → 'Lokasi Saya' (icon my_location,
+///   re-center map)
+/// - Tidak ada GPS lock → FAB hidden (tidak ada yang bisa dilakukan)
+///
+/// Tujuan: user yang baru buka tracking screen langsung bisa lihat
+/// posisi sendiri di map walau belum tap 'Mulai Hike', tanpa friction
+/// 'gimana caranya pin posisi saya'.
+class _TrackingFab extends StatelessWidget {
+  const _TrackingFab({
+    required this.session,
+    required this.mapController,
+    required this.onAddCheckpoint,
+  });
+
+  final TrackingSession session;
+  final MapController mapController;
+  final VoidCallback onAddCheckpoint;
+
+  @override
+  Widget build(BuildContext context) {
+    final HSurface s = Theme.of(context).extension<HSurface>()!;
+    final TrackingFix? fix = session.lastFix;
+
+    if (fix == null) {
+      // Belum ada GPS fix — tidak ada FAB. Permission prompt sudah ada
+      // di home/map screen, dan tracking screen masih punya tombol
+      // 'Mulai Hike' di bottom sheet.
+      return const SizedBox.shrink();
+    }
+
+    if (session.isActive) {
+      // Tracking jalan — FAB jadi 'Tambah Checkpoint'.
+      return FloatingActionButton(
+        heroTag: 'tracking-fab-add-checkpoint',
+        tooltip: 'Tambah checkpoint',
+        backgroundColor: s.actionPrimary,
+        foregroundColor: s.actionPrimaryFg,
+        onPressed: onAddCheckpoint,
+        child: const Icon(Icons.add_location_alt_outlined),
+      );
+    }
+
+    // Tracking idle/paused dengan GPS lock — FAB jadi 'Lokasi Saya'.
+    return FloatingActionButton(
+      heroTag: 'tracking-fab-locate-me',
+      tooltip: 'Pusatkan ke lokasi saya',
+      backgroundColor: s.surface,
+      foregroundColor: s.actionPrimary,
+      onPressed: () {
+        mapController.move(LatLng(fix.latitude, fix.longitude), 15);
+      },
+      child: const Icon(Icons.my_location_rounded),
     );
   }
 }
