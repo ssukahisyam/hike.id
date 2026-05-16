@@ -79,7 +79,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: HSpacing.sectionGap),
-            SectionHeader(label: 'Tracking'),
+            const SectionHeader(label: 'Tracking'),
             const SizedBox(height: HSpacing.s3),
             AppCard(
               padding: EdgeInsets.zero,
