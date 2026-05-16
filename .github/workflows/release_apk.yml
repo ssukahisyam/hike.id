@@ -1,21 +1,55 @@
-name: CI
+name: Release APK
+
+# Build APK release dan publish langsung ke GitHub Releases.
+#
+# Trigger UTAMA: manual via "Run workflow" button (workflow_dispatch).
+# Trigger sekunder: push tag `v*` (untuk yang mau pakai tag-based flow).
+#
+# Output: GitHub Release dengan APK ter-attach (universal + split-per-ABI).
+# Tidak ada upload-artifact — tester langsung download dari Releases page.
+#
+# Catatan signing:
+#  - APK dibuild dengan **debug signing** (fallback di build.gradle.kts).
+#  - Cocok untuk private testing internal saja.
+#  - TIDAK BOLEH untuk publik / Play Store. Production signing menyusul.
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Versi rilis (mis. 0.1.0 — tanpa prefix v). Akan dipakai sebagai tag & nama Release."
+        required: true
+        default: "0.1.0"
+      release_notes:
+        description: "Catatan rilis singkat (opsional, akan ditambahkan ke deskripsi Release)."
+        required: false
+        default: ""
+      prerelease:
+        description: "Tandai sebagai pre-release?"
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+  push:
+    tags:
+      - "v*"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  analyze:
-    name: Lint & test
+  build-and-release:
+    name: Build APK & publish Release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
 
       - uses: subosito/flutter-action@v2
         with:
@@ -23,8 +57,10 @@ jobs:
           flutter-version: 3.24.x
           cache: true
 
-      - name: Show Flutter version
-        run: flutter --version
+      - name: Show versions
+        run: |
+          flutter --version
+          java -version
 
       - name: Pub get
         run: flutter pub get
@@ -35,8 +71,94 @@ jobs:
       - name: Generate Drift code
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Analyze
-        run: flutter analyze
+      - name: Build release APK (universal)
+        run: flutter build apk --release --no-tree-shake-icons
 
-      - name: Test
-        run: flutter test
+      - name: Build split-per-ABI APKs
+        run: flutter build apk --release --split-per-abi --no-tree-shake-icons
+
+      - name: Resolve release metadata
+        id: meta
+        run: |
+          # Untuk push tag → ambil tag name. Untuk manual → ambil dari input.
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            RAW_TAG="${GITHUB_REF#refs/tags/}"          # mis. v0.1.0
+            VERSION="${RAW_TAG#v}"                       # mis. 0.1.0
+            TAG="${RAW_TAG}"
+            IS_PRERELEASE="true"
+          else
+            VERSION="${{ github.event.inputs.version }}"
+            TAG="v${VERSION}"
+            IS_PRERELEASE="${{ github.event.inputs.prerelease }}"
+          fi
+          ARTIFACT_NAME="hikeid-${VERSION}"
+          echo "version=${VERSION}"           >> "${GITHUB_OUTPUT}"
+          echo "tag=${TAG}"                   >> "${GITHUB_OUTPUT}"
+          echo "artifact_name=${ARTIFACT_NAME}" >> "${GITHUB_OUTPUT}"
+          echo "is_prerelease=${IS_PRERELEASE}" >> "${GITHUB_OUTPUT}"
+          echo "## Resolved metadata"
+          echo "- version: ${VERSION}"
+          echo "- tag: ${TAG}"
+          echo "- artifact_name: ${ARTIFACT_NAME}"
+          echo "- prerelease: ${IS_PRERELEASE}"
+
+      - name: Stage APKs with rename
+        run: |
+          mkdir -p release_files
+          PREFIX="${{ steps.meta.outputs.artifact_name }}"
+          cp build/app/outputs/flutter-apk/app-release.apk \
+             "release_files/${PREFIX}-universal.apk"
+          for abi in arm64-v8a armeabi-v7a x86_64; do
+            src="build/app/outputs/flutter-apk/app-${abi}-release.apk"
+            if [ -f "${src}" ]; then
+              cp "${src}" "release_files/${PREFIX}-${abi}.apk"
+            fi
+          done
+          echo "## APKs staged"
+          ls -lh release_files/
+
+      - name: Compose release body
+        id: body
+        run: |
+          {
+            echo 'body<<RELEASEEOF'
+            cat <<HEADER
+          ## Hike.id ${{ steps.meta.outputs.tag }}
+
+          APK private testing build (debug-signed).
+
+          **Cara install:**
+          1. Download \`${{ steps.meta.outputs.artifact_name }}-universal.apk\` (cocok untuk semua device).
+          2. Di Android, izinkan "Install dari sumber tidak dikenal".
+          3. Buka file APK → ikuti prompt instalasi.
+
+          **Untuk hemat ukuran**, pilih APK split sesuai arsitektur:
+          - \`arm64-v8a\` — mayoritas device modern (>2018)
+          - \`armeabi-v7a\` — device lama / 32-bit
+          - \`x86_64\` — emulator
+
+          **Catatan:**
+          - Build ini menggunakan debug signing key — TIDAK untuk publik atau Play Store.
+          - Lihat [\`RELEASE_CHECKLIST.md\`](https://github.com/${{ github.repository }}/blob/main/RELEASE_CHECKLIST.md), [\`KNOWN_LIMITATIONS.md\`](https://github.com/${{ github.repository }}/blob/main/KNOWN_LIMITATIONS.md), [\`TEST_CHECKLIST.md\`](https://github.com/${{ github.repository }}/blob/main/TEST_CHECKLIST.md) untuk daftar yang sudah/belum bisa dites.
+          - Bug report: gunakan in-app reporter (Settings → Lapor bug) atau buka GitHub Issue.
+          HEADER
+            if [ -n "${{ github.event.inputs.release_notes }}" ]; then
+              echo ""
+              echo "### Catatan rilis"
+              echo ""
+              echo "${{ github.event.inputs.release_notes }}"
+            fi
+            echo ""
+            echo "RELEASEEOF"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Create GitHub Release & upload APKs
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: Hike.id ${{ steps.meta.outputs.tag }}
+          files: release_files/*.apk
+          prerelease: ${{ steps.meta.outputs.is_prerelease == 'true' }}
+          generate_release_notes: true
+          body: ${{ steps.body.outputs.body }}
+          fail_on_unmatched_files: true
