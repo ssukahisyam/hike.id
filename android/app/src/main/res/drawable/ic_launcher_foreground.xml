@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Adaptive icon foreground untuk Hike.id.
+
+  Layout: huruf "H" putih di tengah, dengan dot accent alpenglow di puncak
+  (sesuai DESIGN.md §13 — logomark mist/0 dengan dot puncak alpenglow/400).
+  Canvas adaptive icon: 108x108 dp, safe zone 66x66 dp di tengah.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+  <!-- Letter "H" — stroke putih -->
+  <!-- Vertical bar kiri -->
+  <path
+      android:fillColor="#FAFAF9"
+      android:pathData="M40,32 L48,32 L48,76 L40,76 Z" />
+  <!-- Vertical bar kanan -->
+  <path
+      android:fillColor="#FAFAF9"
+      android:pathData="M60,32 L68,32 L68,76 L60,76 Z" />
+  <!-- Horizontal bar tengah -->
+  <path
+      android:fillColor="#FAFAF9"
+      android:pathData="M40,50 L68,50 L68,58 L40,58 Z" />
+
+  <!-- Dot accent puncak (alpenglow/400) -->
+  <path
+      android:fillColor="#FA9540"
+      android:pathData="M54,24 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0" />
+</vector>

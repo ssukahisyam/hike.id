@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Legacy launcher icon (API 24-25) — layer-list dengan background solid
+  forest + foreground vector "H".
+
+  Untuk API 26+, OS otomatis prefer mipmap-anydpi-v26/ic_launcher.xml
+  (adaptive-icon) karena version qualifier lebih spesifik.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- Background — forest/700 dari DESIGN.md s3.1 -->
+  <item>
+    <shape android:shape="rectangle">
+      <solid android:color="@color/ic_launcher_background" />
+    </shape>
+  </item>
+  <!-- Foreground vector "H" — center, 36dp -->
+  <item
+      android:gravity="center"
+      android:width="36dp"
+      android:height="36dp"
+      android:drawable="@drawable/ic_launcher_foreground" />
+</layer-list>
