@@ -153,7 +153,7 @@ class _BestTripCard extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: HColors.alpenglow400.withOpacity(0.18),
+              color: HColors.alpenglow400.withValues(alpha: 0.18),
               shape: BoxShape.circle,
             ),
             child: const Icon(

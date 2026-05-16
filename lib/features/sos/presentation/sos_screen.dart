@@ -287,7 +287,7 @@ class _ContactRow extends StatelessWidget {
           children: <Widget>[
             CircleAvatar(
               radius: 18,
-              backgroundColor: HColors.alpenglow400.withOpacity(0.16),
+              backgroundColor: HColors.alpenglow400.withValues(alpha: 0.16),
               child: const Icon(
                 Icons.phone_in_talk_outlined,
                 color: HColors.alpenglow500,

@@ -97,7 +97,7 @@ class _TripCard extends StatelessWidget {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: HColors.info.withOpacity(0.15),
+                    color: HColors.info.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(HRadius.sm),
                   ),
                   child: Text(
@@ -113,7 +113,7 @@ class _TripCard extends StatelessWidget {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: HColors.alpenglow400.withOpacity(0.15),
+                    color: HColors.alpenglow400.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(HRadius.sm),
                   ),
                   child: Text(

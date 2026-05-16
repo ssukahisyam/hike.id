@@ -85,7 +85,7 @@ class HikeMapView extends StatelessWidget {
                       Polyline(
                         points: t,
                         strokeWidth: 4,
-                        color: HColors.trackHistory.withOpacity(0.7),
+                        color: HColors.trackHistory.withValues(alpha: 0.7),
                       ),
                 ],
               ),
@@ -148,7 +148,7 @@ class HikeMapView extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: HColors.mist0.withOpacity(0.85),
+              color: HColors.mist0.withValues(alpha: 0.85),
               borderRadius: BorderRadius.circular(HRadius.sm),
             ),
             child: Text(
@@ -181,7 +181,7 @@ class _CurrentPositionMarker extends StatelessWidget {
           height: 36,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: HColors.forest500.withOpacity(0.15),
+            color: HColors.forest500.withValues(alpha: 0.15),
           ),
         ),
         // Solid dot
@@ -221,7 +221,7 @@ class _CheckpointPin extends StatelessWidget {
         border: Border.all(color: HColors.mist0, width: 2),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: HColors.mist950.withOpacity(0.2),
+            color: HColors.mist950.withValues(alpha: 0.2),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),

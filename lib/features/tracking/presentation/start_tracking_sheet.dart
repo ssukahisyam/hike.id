@@ -182,7 +182,7 @@ class _ModeOptionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final HSurface s = Theme.of(context).extension<HSurface>()!;
     final Color borderColor = selected ? s.actionPrimary : s.borderSubtle;
-    final Color bg = selected ? s.actionPrimary.withOpacity(0.06) : s.surface;
+    final Color bg = selected ? s.actionPrimary.withValues(alpha: 0.06) : s.surface;
     return Material(
       color: bg,
       borderRadius: BorderRadius.circular(HRadius.lg),
