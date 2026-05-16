@@ -16,6 +16,7 @@ import '../../../l10n/generated/app_localizations.dart';
 import '../data/emergency_contact_repository.dart';
 import '../data/last_location_provider.dart';
 import '../domain/emergency_contact.dart';
+import 'add_emergency_contact_sheet.dart';
 
 /// SOS screen — sengaja tenang, bukan panik.
 ///
@@ -72,7 +73,25 @@ class SosScreen extends ConsumerWidget {
               onPressed: location.value == null ? null : () => _share(context, location.value!),
             ),
             const SizedBox(height: HSpacing.sectionGap),
-            SectionHeader(label: l.sosEmergencyContacts),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: SectionHeader(label: l.sosEmergencyContacts),
+                ),
+                TextButton.icon(
+                  style: TextButton.styleFrom(
+                    foregroundColor: s.actionPrimary,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: HSpacing.s2,
+                      vertical: HSpacing.s1,
+                    ),
+                  ),
+                  icon: const Icon(Icons.add_rounded, size: 18),
+                  label: const Text('Tambah'),
+                  onPressed: () => showAddEmergencyContactSheet(context),
+                ),
+              ],
+            ),
             const SizedBox(height: HSpacing.s3),
             AppCard(
               padding: EdgeInsets.zero,
@@ -82,6 +101,26 @@ class SosScreen extends ConsumerWidget {
                     loading: () => <Widget>[const SizedBox.shrink()],
                     error: (Object _, StackTrace __) => <Widget>[const SizedBox.shrink()],
                     data: (List<EmergencyContact> list) => <Widget>[
+                      if (list.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(HSpacing.s4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                'Belum ada kontak darurat',
+                                style: HTypography.bodyLg
+                                    .copyWith(color: s.textPrimary),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Tambahkan minimal 1 kontak supaya bisa share lokasi cepat saat darurat.',
+                                style: HTypography.bodySm
+                                    .copyWith(color: s.textSecondary),
+                              ),
+                            ],
+                          ),
+                        ),
                       for (int i = 0; i < list.length; i++) ...<Widget>[
                         if (i != 0) Divider(height: 1, color: s.divider),
                         _ContactRow(
@@ -91,7 +130,7 @@ class SosScreen extends ConsumerWidget {
                           onCall: () => _call(list[i].phone),
                         ),
                       ],
-                      if (list.isNotEmpty) Divider(height: 1, color: s.divider),
+                      Divider(height: 1, color: s.divider),
                     ],
                   ),
                   // Basarnas selalu tampil di paling bawah, dihardcode agar
