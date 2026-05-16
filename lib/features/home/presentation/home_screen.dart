@@ -14,13 +14,41 @@ import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/stat_block.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../history/presentation/history_screen.dart';
+import '../../tracking/application/location_permission_controller.dart';
+import '../../tracking/data/gps_service.dart';
 import '../../tracking/domain/trip.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _permissionRequested = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Trigger system permission dialog di first frame setelah home tampil.
+    // Tidak block UI; user lihat home dulu, lalu popup muncul.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted || _permissionRequested) return;
+      _permissionRequested = true;
+      final LocationPermissionStatus current =
+          ref.read(locationPermissionProvider);
+      // Hanya request kalau belum granted & belum deniedForever.
+      // Kalau deniedForever, user harus buka Settings — request() tidak
+      // akan munculkan dialog lagi.
+      if (current == LocationPermissionStatus.denied) {
+        await ref.read(locationPermissionProvider.notifier).request();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final HSurface s = Theme.of(context).extension<HSurface>()!;
     final AppLocalizations l = AppLocalizations.of(context);
     final AsyncValue<List<Trip>> tripsAsync = ref.watch(tripsStreamProvider);
@@ -73,6 +101,7 @@ class HomeScreen extends ConsumerWidget {
               l.homeSubGreeting,
               style: HTypography.bodyLg.copyWith(color: s.textSecondary),
             ),
+            const _PermissionBannerCompact(),
             const SizedBox(height: HSpacing.s5),
             AppButton(
               label: l.homeStartHike,
@@ -164,6 +193,96 @@ class _RecentTripCard extends StatelessWidget {
             style: HTypography.monoSm.copyWith(color: s.textSecondary),
           ),
         ],
+      ),
+    );
+  }
+}
+
+
+/// Banner kompak yang muncul di home saat permission lokasi belum granted.
+/// Menggantikan tracking screen yang fail silently — user lihat status
+/// & tombol aksi langsung dari home.
+class _PermissionBannerCompact extends ConsumerWidget {
+  const _PermissionBannerCompact();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final HSurface s = Theme.of(context).extension<HSurface>()!;
+    final LocationPermissionStatus status =
+        ref.watch(locationPermissionProvider);
+    if (status == LocationPermissionStatus.granted) {
+      return const SizedBox.shrink();
+    }
+
+    final String message;
+    final String? cta;
+    final Future<void> Function() onTap;
+    final IconData icon;
+
+    switch (status) {
+      case LocationPermissionStatus.granted:
+        return const SizedBox.shrink();
+      case LocationPermissionStatus.denied:
+        message = 'Aktifkan izin lokasi supaya tracking bisa dimulai.';
+        cta = 'Beri Izin';
+        icon = Icons.location_on_outlined;
+        onTap = () async {
+          await ref.read(locationPermissionProvider.notifier).request();
+        };
+      case LocationPermissionStatus.deniedForever:
+        message = 'Izin lokasi diblokir. Buka pengaturan untuk aktifkan.';
+        cta = 'Buka Pengaturan';
+        icon = Icons.settings_outlined;
+        onTap = () async {
+          await ref.read(locationPermissionProvider.notifier).openSettings();
+          // Setelah user kembali, refresh ulang status.
+          await Future<void>.delayed(const Duration(milliseconds: 500));
+          await ref.read(locationPermissionProvider.notifier).refresh();
+        };
+      case LocationPermissionStatus.serviceDisabled:
+        message = 'GPS device dimatikan. Aktifkan di pengaturan sistem.';
+        cta = 'Refresh';
+        icon = Icons.gps_off_outlined;
+        onTap = () async {
+          await ref.read(locationPermissionProvider.notifier).refresh();
+        };
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: HSpacing.s3),
+      child: Container(
+        padding: const EdgeInsets.all(HSpacing.s3),
+        decoration: BoxDecoration(
+          color: HColors.warningBg,
+          borderRadius: BorderRadius.circular(HRadius.md),
+          border: Border.all(color: HColors.warningBorder),
+        ),
+        child: Row(
+          children: <Widget>[
+            Icon(icon, size: 20, color: HColors.alpenglow300),
+            const SizedBox(width: HSpacing.s2),
+            Expanded(
+              child: Text(
+                message,
+                style: HTypography.bodySm.copyWith(color: HColors.alpenglow300),
+              ),
+            ),
+            const SizedBox(width: HSpacing.s2),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: HColors.alpenglow300,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: HSpacing.s3,
+                  vertical: HSpacing.s2,
+                ),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              onPressed: onTap,
+              child: Text(cta),
+            ),
+          ],
+        ),
       ),
     );
   }

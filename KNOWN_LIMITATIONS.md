@@ -4,7 +4,18 @@ Daftar jujur hal yang **belum bekerja** atau **belum lengkap** di build private 
 
 Mengikuti prinsip "Honest by default" (PRD §2 / DESIGN §1.4): kita jangan klaim hal yang tidak bisa kita lakukan.
 
-> **Update terakhir:** mengikuti commit terakhir yang merge `feat/phase-10a-port-to-main`.
+> **Update terakhir:** v0.1.1 — Iteration 1 fixes (16 Mei 2026)
+
+## Yang Diperbaiki di v0.1.1 (Iteration 1)
+
+- ✅ Permission lokasi auto-request saat app pertama kali dibuka (popup system muncul)
+- ✅ Banner permission di home screen + overlay prompt di map screen
+- ✅ FAB "Lokasi Saya" di map & tracking screen — re-center map ke posisi user
+- ✅ FAB tracking screen dual-role: idle = Lokasi Saya, active = Tambah Checkpoint
+- ✅ GPX import lebih obvious — tombol di empty state history (bukan hanya icon kecil di app bar)
+- ✅ Tambah kontak darurat — bottom sheet form di SOS screen
+- ✅ Empty state SOS contacts dengan CTA, bukan blank space
+- ✅ Lifecycle observer auto-refresh permission saat app resume dari Settings
 
 ## 1. Background tracking & baterai
 

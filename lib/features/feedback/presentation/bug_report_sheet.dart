@@ -41,7 +41,7 @@ Future<void> showBugReportSheet(BuildContext context) {
 
 const String _kIssueUrlBase = 'https://github.com/ssukahisyam/hike.id/issues/new';
 const String _kFeedbackEmail = 'feedback@hike.id'; // placeholder; ganti saat domain live
-const String _kAppVersion = '0.1.0+1'; // sync manual dengan pubspec.yaml
+const String _kAppVersion = '0.1.1+2'; // sync manual dengan pubspec.yaml
 
 class _BugReportSheet extends StatefulWidget {
   const _BugReportSheet();

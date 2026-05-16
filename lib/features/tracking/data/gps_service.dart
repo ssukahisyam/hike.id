@@ -30,9 +30,37 @@ class GpsFix {
   final DateTime timestamp;
 }
 
+/// Status permission yang dipakai oleh UI untuk render state berbeda.
+enum LocationPermissionStatus {
+  /// User sudah grant — tracking bisa start.
+  granted,
+
+  /// User belum pernah ditanya, atau pernah denied non-permanent.
+  denied,
+
+  /// User pilih "Don't ask again" / system block — harus buka pengaturan.
+  deniedForever,
+
+  /// GPS device dimatikan di system settings.
+  serviceDisabled,
+}
+
 /// Abstraksi GPS service supaya bisa di-mock di test.
 abstract class GpsService {
+  /// Cek status permission tanpa request — aman dipanggil dari widget build.
+  Future<LocationPermissionStatus> checkPermission();
+
+  /// Request permission ke OS (popup system). Return status setelah dialog
+  /// di-dismiss. Aman dipanggil berkali-kali — kalau sudah granted akan
+  /// langsung return tanpa popup.
+  Future<LocationPermissionStatus> requestPermission();
+
+  /// Buka pengaturan app supaya user bisa enable permission manual saat
+  /// status `deniedForever`. Return true kalau pengaturan terbuka.
+  Future<bool> openLocationSettings();
+
   /// Pastikan permission diberikan & service aktif. Throw jika tidak bisa.
+  /// Dipanggil oleh tracking controller saat start.
   Future<void> ensureReady();
 
   /// Stream live update sesuai mode tracking.
@@ -46,20 +74,58 @@ class GeolocatorGpsService implements GpsService {
   GeolocatorGpsService();
 
   @override
-  Future<void> ensureReady() async {
+  Future<LocationPermissionStatus> checkPermission() async {
     final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      throw const GpsUnavailable('GPS device dimatikan. Aktifkan lokasi di pengaturan sistem.');
+    if (!serviceEnabled) return LocationPermissionStatus.serviceDisabled;
+    final LocationPermission p = await Geolocator.checkPermission();
+    return _mapStatus(p);
+  }
+
+  @override
+  Future<LocationPermissionStatus> requestPermission() async {
+    final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return LocationPermissionStatus.serviceDisabled;
+    LocationPermission p = await Geolocator.checkPermission();
+    if (p == LocationPermission.denied) {
+      p = await Geolocator.requestPermission();
     }
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+    return _mapStatus(p);
+  }
+
+  @override
+  Future<bool> openLocationSettings() async {
+    return Geolocator.openAppSettings();
+  }
+
+  LocationPermissionStatus _mapStatus(LocationPermission p) {
+    switch (p) {
+      case LocationPermission.always:
+      case LocationPermission.whileInUse:
+        return LocationPermissionStatus.granted;
+      case LocationPermission.denied:
+      case LocationPermission.unableToDetermine:
+        return LocationPermissionStatus.denied;
+      case LocationPermission.deniedForever:
+        return LocationPermissionStatus.deniedForever;
     }
-    if (permission == LocationPermission.deniedForever) {
-      throw const GpsUnavailable('Izin lokasi ditolak permanen. Buka pengaturan untuk mengaktifkan.');
-    }
-    if (permission == LocationPermission.denied) {
-      throw const GpsUnavailable('Izin lokasi belum diberikan.');
+  }
+
+  @override
+  Future<void> ensureReady() async {
+    final LocationPermissionStatus status = await requestPermission();
+    switch (status) {
+      case LocationPermissionStatus.granted:
+        return;
+      case LocationPermissionStatus.serviceDisabled:
+        throw const GpsUnavailable(
+          'GPS device dimatikan. Aktifkan lokasi di pengaturan sistem.',
+        );
+      case LocationPermissionStatus.deniedForever:
+        throw const GpsUnavailable(
+          'Izin lokasi ditolak permanen. Buka pengaturan untuk mengaktifkan.',
+        );
+      case LocationPermissionStatus.denied:
+        throw const GpsUnavailable('Izin lokasi belum diberikan.');
     }
   }
 
