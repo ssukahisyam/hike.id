@@ -43,9 +43,39 @@ Kalau kamu baru di proyek ini, baca dengan urutan:
 3. **PRD_HIKEID.md** — pahami detail fitur dan data model.
 4. **DESIGN.md** — pahami visual & UX language.
 
+## Quick Start (Aplikasi)
+
+```bash
+flutter pub get
+flutter gen-l10n
+dart run build_runner build --delete-conflicting-outputs
+flutter run
+```
+
+Build APK release:
+
+```bash
+flutter build apk --release
+```
+
+Detail lengkap: lihat [`DEVELOPMENT.md`](./DEVELOPMENT.md).
+
 ## Status MVP
 
 MVP ditargetkan **20 minggu** sejak kickoff, dengan public beta **+6 minggu** setelah MVP. Lihat tabel milestone di `PLANNING_HIKEID.md` §9.
+
+Snapshot fase saat ini:
+
+- Phase 1 — Project Foundation: **selesai**
+- Phase 2 — Local Data Foundation: **selesai**
+- Phase 3 — GPS Tracking Core: **selesai**
+- Phase 4 — Background Tracking: belum (perlu real device test)
+- Phase 5 — Map & Offline: **selesai (online)**, tile cache offline belum
+- Phase 6 — GPX Import & Export: **selesai**
+- Phase 7 — Checkpoint: **selesai**, photo/voice note belum
+- Phase 8 — Safety / SOS: **selesai (off-route warning + emergency contact)**
+- Phase 9 — Statistik lanjut & UI polish: **selesai (chart elevasi, personal best, monthly heatmap)**
+- Phase 10 — Release: belum (akan dilakukan saat artifact GitHub kembali)
 
 ## Lisensi
 

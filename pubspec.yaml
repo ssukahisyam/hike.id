@@ -1,0 +1,64 @@
+name: hike_id
+description: "Hike.id — Offline-first hiking companion untuk pendaki gunung Indonesia."
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+  flutter: ">=3.22.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State management
+  flutter_riverpod: ^2.5.1
+
+  # Navigation
+  go_router: ^14.2.7
+
+  # Local storage (Phase 2)
+  drift: ^2.18.0
+  sqlite3_flutter_libs: ^0.5.24
+  path_provider: ^2.1.4
+  path: ^1.9.0
+  shared_preferences: ^2.3.2
+
+  # GPS & permissions (Phase 3)
+  geolocator: ^13.0.1
+  permission_handler: ^11.3.1
+
+  # Map (Phase 5)
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+
+  # GPX import / export, share (Phase 6, 8)
+  gpx: ^2.3.0
+  file_picker: ^8.1.2
+  share_plus: ^10.0.2
+  url_launcher: ^6.3.1
+
+  # Domain helpers
+  equatable: ^2.0.5
+  uuid: ^4.4.2
+  intl: any
+
+  # Utilities
+  collection: ^1.18.0
+  logger: ^2.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.13
+  drift_dev: ^2.18.0
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+    - assets/images/
+    - assets/icons/
