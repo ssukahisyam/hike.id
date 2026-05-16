@@ -130,7 +130,7 @@ class SettingsScreen extends ConsumerWidget {
                         Text(l.appName, style: HTypography.headingMd.copyWith(color: s.textPrimary)),
                         const SizedBox(height: 2),
                         Text(
-                          'v0.1.0 — ${l.tagline}',
+                          'v0.1.1 — ${l.tagline}',
                           style: HTypography.bodySm.copyWith(color: s.textSecondary),
                         ),
                         const SizedBox(height: HSpacing.s3),
